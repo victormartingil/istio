@@ -1,0 +1,61 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: cuentas-access
+spec:
+  selector:
+    matchLabels:
+      app: cuentas
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["*"] # Permite el acceso a todos los usuarios autenticados
+      to:
+        - operation:
+            methods: ["POST"] # Solo permite peticiones POST
+      when:
+        - key: request.auth.claims[roles]
+          values: ["admin"] # Solo permite el acceso a usuarios con el rol "admin"
+
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+spec:
+  selector:
+    matchLabels:
+      app: cuentas
+  jwtRules:
+    - issuer: "https://auth.example.com" # Emisor del token JWT
+      jwksUri: "https://auth.example.com/.well-known/jwks.json" # URL donde se encuentra la clave pública del emisor
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: cuentas-virtualservice
+spec:
+  hosts:
+    - cuentas.example.com
+  gateways:
+    - istio-system/ingressgateway
+  http:
+    - match:
+        - uri:
+            prefix: /cuentas
+      route:
+        - destination:
+            host: cuentas-service
+            port:
+              number: 8080
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: cuentas-destinationrule
+spec:
+  host: cuentas-service
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL # Opcionalmente, puedes habilitar el cifrado mutuo entre los servicios
+
