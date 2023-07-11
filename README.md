@@ -3,6 +3,9 @@ https://github.com/istio/istio/releases/download/1.9.0/istio-1.9.0-win.zip
 
 Add istio/bin folder to your PATH environment variable, on Windows
 
+Istio comes with Grafana, Kiali, Prometheus, and Jaeger pre-configured to deploy with Istio using the istioctl command line. To install these tools, run the following command:
+
+
 ### Check if istioctl is installed
 ```bash
 istioctl version
@@ -47,3 +50,8 @@ Kiali es un dashboard que nos permite visualizar la topología de nuestra aplica
 istioctl dashboard kiali
 ```
 
+# Gateway
+Creamos el archivo [gateway.yaml]('k8/gateway.yaml') para crear un gateway de istio y lo aplicamos
+```bash
+kubectl apply -f gateway.yaml
+```

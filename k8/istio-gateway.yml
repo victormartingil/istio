@@ -1,0 +1,41 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: mi-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "mi-dominio.com"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: mi-virtualservice
+spec:
+  hosts:
+    - "mi-dominio.com"
+  gateways:
+    - mi-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /mi-microservicio
+      route:
+        - destination:
+            host: mi-microservicio
+            port:
+              number: 8080
+    - match:
+        - uri:
+            prefix: /mi-otro-microservicio
+      route:
+        - destination:
+            host: mi-otro-microservicio
+            port:
+              number: 8080
